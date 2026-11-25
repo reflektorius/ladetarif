@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Ladetarif-Vergleich</title>
+<meta name="theme-color" content="#14161a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f4f5f7; --surface:#ffffff; --surface-2:#f7f8fa; --line:#e4e6eb; --line-2:#d3d6dd;
+  --text:#191919; --text-2:#666b75; --ink:#14161a; --on-ink:#ffffff;
+  --s1:#257de0; --s2:#f47230;
+  --good:#0a7d3c; --good-bg:#e6f4ea; --bad:#c62828;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px -12px rgba(16,24,40,.10);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#0f1114; --surface:#191919; --surface-2:#202225; --line:#2b2e33; --line-2:#3a3e45;
+    --text:#efefef; --text-2:#9c9c9c; --ink:#efefef; --on-ink:#101114;
+    --s1:#338ced; --s2:#e76624;
+    --good:#5ccf86; --good-bg:#14301f; --bad:#ff8a80;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+[hidden]{display:none!important}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1040px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;text-decoration:none}
+.brand i{width:30px;height:30px;border-radius:9px;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-style:normal;font-size:16px}
+nav{display:flex;align-items:center;gap:4px}
+nav a,nav button{font:inherit;font-weight:500;color:var(--text-2);background:none;border:0;padding:8px 14px;border-radius:999px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+nav a:hover,nav button:hover{background:var(--surface-2);color:var(--text)}
+nav .on{background:var(--ink);color:var(--on-ink)}
+nav .on:hover{background:var(--ink);color:var(--on-ink)}
+.menu{position:relative}
+.pop{position:absolute;right:0;top:calc(100% + 8px);min-width:190px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px}
+.pop a{display:flex;width:100%;border-radius:10px;color:var(--text);padding:10px 12px}
+.pop a.cur{background:var(--surface-2);font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.dot.shell{background:var(--s1)} .dot.aral{background:var(--s2)}
+.caret{font-size:10px;opacity:.7}
+
+main{max-width:1040px;margin:0 auto;padding:28px 20px 56px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+h1{font-size:clamp(26px,4vw,34px);line-height:1.15;letter-spacing:-.025em;font-weight:800;margin-top:6px;display:flex;align-items:center;gap:12px}
+.lead{color:var(--text-2);margin-top:8px;max-width:60ch}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+
+/* inputs on home */
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:18px}
+.inbox{padding:22px 24px}
+.inbox+.inbox{border-left:1px solid var(--line)}
+.inbox label.t{display:flex;justify-content:space-between;align-items:baseline;font-weight:600}
+.inbox .sub{color:var(--text-2);font-weight:400;font-size:13px}
+.big-in{display:flex;align-items:baseline;gap:8px;margin:10px 0 14px;border-bottom:2px solid var(--line-2);padding-bottom:4px;transition:border-color .15s}
+.big-in:focus-within{border-color:var(--ink)}
+.big-in input{width:100%;min-width:0;border:0;background:none;outline:0;font:inherit;font-size:40px;font-weight:700;letter-spacing:-.03em;color:var(--text);padding:0}
+.big-in span{font-size:18px;color:var(--text-2);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0;height:24px}
+
+/* verdict */
+.verdict{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:16px;background:var(--good-bg);color:var(--good);font-weight:600;margin-bottom:18px}
+.verdict.even{background:var(--surface-2);color:var(--text-2)}
+.verdict svg{flex:none}
+
+/* results */
+.results{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.res{padding:22px 24px;position:relative;transition:box-shadow .2s,border-color .2s}
+.res.win{border-color:var(--good);box-shadow:0 0 0 1px var(--good),var(--shadow)}
+.res-head{display:flex;align-items:center;gap:10px}
+.res-head h2{font-size:18px;font-weight:700}
+.badge{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--good);background:var(--good-bg);padding:4px 10px;border-radius:999px}
+.total{display:flex;align-items:baseline;gap:6px;margin-top:16px}
+.total .num{font-size:clamp(44px,7vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.total .cur{font-size:24px;font-weight:600;color:var(--text-2)}
+.eff{color:var(--text-2);font-size:13.5px;margin-top:6px}
+dl.rows{margin:18px 0 0;border-top:1px solid var(--line)}
+dl.rows>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+dl.rows>div:last-child{border-bottom:0}
+dl.rows dt{font-weight:500}
+dl.rows dt small{display:block;color:var(--text-2);font-weight:400;font-size:12.5px;margin-top:1px}
+dl.rows dd{margin:0;font-weight:600;white-space:nowrap}
+.res .edit{display:inline-flex;margin-top:14px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--text);border-bottom:1.5px solid var(--line-2)}
+.res .edit:hover{border-color:var(--ink)}
+
+/* chart */
+.chart-card{padding:22px 24px}
+.chart-card h3{font-size:16px;font-weight:700}
+.chart-card .cap{color:var(--text-2);font-size:13px;margin-top:2px}
+.legend{display:flex;gap:18px;margin:14px 0 4px;font-size:13.5px;font-weight:500}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:16px;height:3px;border-radius:2px;display:inline-block}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart text{font:12px system-ui,sans-serif;fill:var(--text-2)}
+.chart text.lab{font-weight:600;fill:var(--text);font-size:12.5px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow);padding:10px 12px;font-size:13px;min-width:150px;z-index:5}
+.tip b{display:block;margin-bottom:6px}
+.tip div{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tip div span{display:inline-flex;align-items:center;gap:6px}
+details.tbl{margin-top:12px;font-size:13.5px}
+details summary{cursor:pointer;font-weight:600;color:var(--text-2);padding:6px 0}
+details summary:hover{color:var(--text)}
+.tbl table{width:100%;border-collapse:collapse;margin-top:8px}
+.tbl th,.tbl td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--text-2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.tbl tr.now td{font-weight:700;background:var(--surface-2)}
+
+/* tariff pages */
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.seg a{padding:7px 16px;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px;color:var(--text-2);display:inline-flex;gap:8px;align-items:center}
+.seg a.on{background:var(--ink);color:var(--on-ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.fields{padding:8px 24px 22px}
+fieldset{border:0;padding:0;margin:0;padding-top:18px}
+fieldset+fieldset{border-top:1px solid var(--line);margin-top:18px}
+legend{padding:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;float:left;width:100%}
+fieldset .fl{clear:both;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field .lbl{font-weight:600;font-size:14px}
+.field .inp{display:flex;align-items:center;background:var(--surface-2);border:1.5px solid var(--line);border-radius:12px;padding:0 14px;transition:border-color .15s,background .15s}
+.field .inp:focus-within{border-color:var(--ink);background:var(--surface)}
+.field .inp.bad{border-color:var(--bad)}
+.field input{flex:1;min-width:0;border:0;background:none;outline:0;font:inherit;font-size:18px;font-weight:600;padding:11px 0;color:var(--text)}
+.field input::placeholder{color:var(--text-2);font-weight:400;font-size:15px}
+.field .unit{color:var(--text-2);font-size:13.5px;white-space:nowrap;margin-left:8px}
+.field .hint{font-size:12.5px;color:var(--text-2);line-height:1.4}
+.preview{padding:22px 24px;position:sticky;top:76px}
+.preview h3{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.preview .ctx{color:var(--text-2);font-size:13.5px;margin-top:4px}
+.preview .ctx a{font-weight:600;color:var(--text)}
+.btn{font:inherit;font-weight:600;font-size:14px;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer;margin-top:16px}
+.btn:hover{border-color:var(--line-2)}
+.how{padding:6px 24px;margin-top:18px}
+.how summary{padding:14px 0;font-size:15px;color:var(--text)}
+.how .body{padding:0 0 18px;color:var(--text-2);font-size:14px}
+.how ol{margin:8px 0 0;padding-left:20px}
+.how li{margin:6px 0}
+.how b{color:var(--text)}
+footer{max-width:1040px;margin:0 auto;padding:0 20px 36px;color:var(--text-2);font-size:12.5px}
+
+@media (max-width:760px){
+  .inputs,.results,.grid2{grid-template-columns:1fr}
+  .inbox+.inbox{border-left:0;border-top:1px solid var(--line)}
+  .preview{position:static}
+  .top-in{padding:10px 14px} main{padding:20px 14px 40px}
+  .brand span{display:none}
+  .big-in input{font-size:34px}
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="top-in">
+  <a class="brand" href="#vergleich"><i>⚡</i><span>Ladetarif-Vergleich</span></a>
+  <nav aria-label="Hauptnavigation">
+    <a href="#vergleich" id="nav-home">Vergleich</a>
+    <div class="menu">
+      <button id="nav-tarife" aria-haspopup="true" aria-expanded="false">Tarife <span class="caret">▾</span></button>
+      <div class="pop" id="pop" hidden>
+        <a href="#tarif-shell" data-r="tarif-shell"><span class="dot shell"></span>Shell</a>
+        <a href="#tarif-aral" data-r="tarif-aral"><span class="dot aral"></span>Aral</a>
+      </div>
+    </div>
+  </nav>
+</div></header>
+
+<main>
+  <!-- ============ Startseite ============ -->
+  <section class="view" id="view-vergleich">
+    <div class="page-head"><div>
+      <p class="eyebrow">Ladestrom-Tarife</p>
+      <h1>Was kostet dein Ladevorgang?</h1>
+      <p class="lead">Gib Ladeenergie und Ladezeit ein – die Gesamtkosten beider Anbieter aktualisieren sich sofort.</p>
+    </div></div>
+
+    <div class="card inputs">
+      <div class="inbox">
+        <label class="t" for="in-energy">Ladeenergie <span class="sub" id="sub-energy"></span></label>
+        <div class="big-in"><input id="in-energy" inputmode="decimal" autocomplete="off"><span>kWh</span></div>
+        <input type="range" id="rg-energy" min="1" max="150" step="1" aria-label="Ladeenergie Schieberegler">
+      </div>
+      <div class="inbox">
+        <label class="t" for="in-hours">Ladezeit <span class="sub" id="sub-hours"></span></label>
+        <div class="big-in"><input id="in-hours" inputmode="decimal" autocomplete="off"><span>h</span></div>
+        <input type="range" id="rg-hours" min="0.25" max="24" step="0.25" aria-label="Ladezeit Schieberegler">
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict" role="status"></div>
+    <div class="results" id="results"></div>
+
+    <div class="card chart-card">
+      <h3>Kosten in Abhängigkeit der Ladezeit</h3>
+      <p class="cap" id="chart-cap"></p>
+      <div class="legend"><span><i style="background:var(--s1)"></i>Shell</span><span><i style="background:var(--s2)"></i>Aral</span></div>
+      <div class="chart" id="chart"></div>
+      <details class="tbl"><summary>Als Tabelle anzeigen</summary><div id="table"></div></details>
+    </div>
+  </section>
+
+  <!-- Tarifseiten werden per JS erzeugt -->
+</main>
+<footer>Deine Eingaben und Tarife werden nur lokal in diesem Browser gespeichert. Alle Angaben ohne Gewähr.</footer>
+
+<script>
+/* ---------- Tarifmodell (identisch für beide Anbieter) ---------- */
+// CALC-START
+function num(s){
+  if(s==null) return null;
+  s=String(s).trim().replace(',','.');
+  if(s==='') return null;
+  const n=Number(s);
+  return Number.isFinite(n)&&n>=0?n:NaN;
+}
+function toParams(t){
+  const g=k=>{const n=num(t[k]);return Number.isNaN(n)?null:n;};
+  return {price:g('price')??0,minFee:g('minFee')??0,minFrom:g('minFrom')??0,
+          minMax:g('minMax'),overFee:g('overFee')??0,overFrom:g('overFrom')};
+}
+function calc(E,hours,p){
+  const min=hours*60;
+  const energy=E*p.price;
+  const overAt=p.overFrom==null?Infinity:p.overFrom;
+  const billed=Math.max(0,Math.min(min,overAt)-p.minFrom);
+  let fee=billed*p.minFee, capped=false;
+  if(p.minMax!=null&&fee>p.minMax){fee=p.minMax;capped=true;}
+  const overMin=min>overAt?min-overAt:0;
+  const over=overMin*p.overFee;
+  return {energy,fee,over,total:energy+fee+over,billed,capped,overMin,min};
+}
+// CALC-END
+
+/* ---------- Konstanten & Zustand ---------- */
+const PROVIDERS=[{id:'shell',name:'Shell'},{id:'aral',name:'Aral'}];
+const DEFAULTS={
+  shell:{price:'0,70',minFee:'0,02',minFrom:'0',minMax:'',overFee:'',overFrom:''},
+  aral:{price:'0,47',minFee:'0,10',minFrom:'240',minMax:'10',overFee:'0,15',overFrom:'480'}
+};
+const GROUPS=[
+  {title:'Energie',fields:[
+    {k:'price',label:'Energiepreis',unit:'€ / kWh',hint:'Preis pro geladener Kilowattstunde.'}]},
+  {title:'Minutengebühr',fields:[
+    {k:'minFee',label:'Minutengebühr',unit:'€ / min',hint:'Gebühr pro Minute Ladezeit.'},
+    {k:'minFrom',label:'Minutengebühr ab',unit:'min',hint:'Ab dieser Ladedauer wird die Gebühr fällig (0 = von Anfang an).'},
+    {k:'minMax',label:'Minutengebühr max',unit:'€',hint:'Obergrenze der Minutengebühr. Leer = unbegrenzt.',opt:'unbegrenzt'}]},
+  {title:'Überschreitung',fields:[
+    {k:'overFee',label:'Überschreitungsgebühr',unit:'€ / min',hint:'Zusätzliche Gebühr pro Minute über der Schwelle.',opt:'keine'},
+    {k:'overFrom',label:'Überschreitungsgebühr ab',unit:'min',hint:'Ab dieser Ladedauer greift die Überschreitungsgebühr. Leer = nie.',opt:'nie'}]}
+];
+const KEY='ladetarif-v1';
+let state={energy:'40',hours:'4',t:{shell:{...DEFAULTS.shell},aral:{...DEFAULTS.aral}}};
+try{
+  const s=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(s){state.energy=s.energy??state.energy;state.hours=s.hours??state.hours;
+    for(const p of PROVIDERS) state.t[p.id]={...DEFAULTS[p.id],...(s.t&&s.t[p.id]||{})};}
+}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ---------- Helfer ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const eur=n=>n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const rate=n=>n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:4});
+const n0=n=>n.toLocaleString('de-DE',{maximumFractionDigits:2});
+function fmtH(h){const m=Math.round(h*60);const a=Math.floor(m/60),b=m%60;return b?(a?`${a} h ${b} min`:`${b} min`):`${a} h`;}
+function inputs(){return {E:num(state.energy)||0,H:num(state.hours)||0};}
+function results(){
+  const {E,H}=inputs();
+  return PROVIDERS.map(p=>{const pr=toParams(state.t[p.id]);return {...p,pr,r:calc(E,H,pr)};});
+}
+function rowsHTML(r,pr,E){
+  const feeDetail = r.billed>0
+    ? `${n0(r.billed)} min × ${rate(pr.minFee)} €${r.capped?' · Deckel erreicht':''}`
+    : (pr.minFee>0 && r.min<=pr.minFrom ? `Schwelle bei ${n0(pr.minFrom)} min nicht erreicht` : '–');
+  const overDetail = pr.overFrom==null||pr.overFee===0 ? 'nicht Teil des Tarifs'
+    : r.overMin>0 ? `${n0(r.overMin)} min × ${rate(pr.overFee)} €` : `greift ab ${n0(pr.overFrom)} min`;
+  return `<div><dt>Energie<small>${n0(E)} kWh × ${rate(pr.price)} €</small></dt><dd>${eur(r.energy)} €</dd></div>
+  <div><dt>Minutengebühr<small>${feeDetail}</small></dt><dd>${eur(r.fee)} €</dd></div>
+  <div><dt>Überschreitung<small>${overDetail}</small></dt><dd>${eur(r.over)} €</dd></div>`;
+}
+
+/* ---------- Startseite ---------- */
+function renderHome(){
+  const {E,H}=inputs();
+  const res=results();
+  $('#sub-energy').textContent='';
+  $('#sub-hours').textContent='= '+n0(Math.round(H*60))+' min';
+  const [a,b]=res;
+  const diff=a.r.total-b.r.total;
+  const even=Math.abs(diff)<0.005;
+  const win=even?null:(diff>0?b:a), lose=even?null:(diff>0?a:b);
+  const v=$('#verdict');
+  v.className='verdict'+(even?' even':'');
+  if(even){v.innerHTML='<span>Beide Anbieter kosten für diesen Ladevorgang gleich viel.</span>';}
+  else{
+    const pct=Math.abs(diff)/lose.r.total*100;
+    v.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg>
+    <span>${win.name} ist ${eur(Math.abs(diff))} € günstiger – das sind ${n0(Math.round(pct*10)/10)} % weniger als bei ${lose.name}.</span>`;
+  }
+  $('#results').innerHTML=res.map(x=>`
+   <article class="card res${win&&win.id===x.id?' win':''}">
+    <div class="res-head"><span class="dot ${x.id}"></span><h2>${x.name}</h2>
+      ${win&&win.id===x.id?'<span class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Günstiger</span>':''}</div>
+    <div class="total"><span class="num">${eur(x.r.total)}</span><span class="cur">€</span></div>
+    <p class="eff">${E>0?'Ø '+eur(x.r.total/E)+' € pro kWh':'Keine Ladeenergie angegeben'}</p>
+    <dl class="rows">${rowsHTML(x.r,x.pr,E)}</dl>
+    <a class="edit" href="#tarif-${x.id}">${x.name}-Tarif anpassen →</a>
+   </article>`).join('');
+  drawChart(); renderTable();
+}
+
+/* ---------- Diagramm ---------- */
+function xMax(){const {H}=inputs();return Math.min(48,Math.max(12,Math.ceil(H*1.25)));}
+function series(E,xm){
+  const N=480,out=PROVIDERS.map(p=>({id:p.id,name:p.name,pr:toParams(state.t[p.id]),pts:[]}));
+  for(let i=0;i<=N;i++){const h=xm*i/N;for(const s of out)s.pts.push([h,calc(E,h,s.pr).total]);}
+  return out;
+}
+function niceStep(max,n){const raw=max/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;}
+function drawChart(){
+  const box=$('#chart'); const W=box.clientWidth; if(!W) return;
+  const {E,H}=inputs(); const xm=xMax();
+  const S=series(E,xm);
+  const H_=Math.round(Math.max(250,Math.min(340,W*.5)));
+  const m={l:48,r:W<520?52:64,t:14,b:34};
+  const iw=W-m.l-m.r, ih=H_-m.t-m.b;
+  const ymaxRaw=Math.max(1,...S.flatMap(s=>s.pts.map(p=>p[1])));
+  const ys=niceStep(ymaxRaw,5), ym=Math.ceil(ymaxRaw/ys)*ys;
+  const X=h=>m.l+h/xm*iw, Y=v=>m.t+ih-v/ym*ih;
+  const xs=xm<=12?1:xm<=24?2:4;
+  let g='';
+  for(let v=0;v<=ym+1e-9;v+=ys){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v.toLocaleString('de-DE')} €</text>`;}
+  for(let h=0;h<=xm;h+=xs){g+=`<text x="${X(h)}" y="${H_-12}" text-anchor="middle">${h} h</text>`;}
+  g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line-2)"/>`;
+  const col={shell:'var(--s1)',aral:'var(--s2)'};
+  const lines=S.map(s=>`<polyline fill="none" stroke="${col[s.id]}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${s.pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')}"/>`).join('');
+  // aktuelle Ladezeit
+  const cur=PROVIDERS.map(p=>({id:p.id,v:calc(E,Math.min(H,xm),toParams(state.t[p.id])).total}));
+  const hx=X(Math.min(H,xm));
+  const marker=`<line x1="${hx}" x2="${hx}" y1="${m.t}" y2="${Y(0)}" stroke="var(--text-2)" stroke-dasharray="4 4" opacity=".7"/>`+
+    cur.map(c=>`<circle cx="${hx}" cy="${Y(c.v)}" r="5" fill="${col[c.id]}" stroke="var(--surface)" stroke-width="2"/>`).join('');
+  // Direktbeschriftung am Linienende (Kollisionen entzerren)
+  const ends=S.map(s=>({id:s.id,name:s.name,y:Y(s.pts[s.pts.length-1][1])})).sort((a,b)=>a.y-b.y);
+  if(ends[1].y-ends[0].y<15){const mid=(ends[0].y+ends[1].y)/2;ends[0].y=mid-8;ends[1].y=mid+8;}
+  const labels=ends.map(e=>`<text class="lab" x="${W-m.r+8}" y="${e.y+4}">${e.name}</text>`).join('');
+  box.innerHTML=`<svg width="${W}" height="${H_}" viewBox="0 0 ${W} ${H_}" role="img" aria-label="Kosten von Shell und Aral abhängig von der Ladezeit">${g}${lines}${marker}${labels}
+    <line id="xh" y1="${m.t}" y2="${Y(0)}" stroke="var(--text-2)" opacity="0"/><g id="hd"></g>
+    <rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" id="hit"/></svg><div class="tip" id="tip" hidden></div>`;
+  $('#chart-cap').textContent=`Bei ${n0(E)} kWh. Die gestrichelte Linie markiert deine Ladezeit von ${fmtH(H)}.`;
+  const hit=$('#hit'),tip=$('#tip'),xh=$('#xh'),hd=$('#hd');
+  const move=ev=>{
+    const r=box.getBoundingClientRect();
+    const px=Math.min(Math.max(ev.clientX-r.left,m.l),W-m.r);
+    const h=(px-m.l)/iw*xm;
+    const vals=PROVIDERS.map(p=>({id:p.id,name:p.name,v:calc(E,h,toParams(state.t[p.id])).total}));
+    xh.setAttribute('x1',px);xh.setAttribute('x2',px);xh.setAttribute('opacity','.5');
+    hd.innerHTML=vals.map(v=>`<circle cx="${px}" cy="${Y(v.v)}" r="5" fill="${col[v.id]}" stroke="var(--surface)" stroke-width="2"/>`).join('');
+    tip.hidden=false;
+    tip.innerHTML=`<b>Ladezeit ${fmtH(h)}</b>`+vals.map(v=>`<div><span><i class="dot ${v.id}"></i>${v.name}</span><b style="margin:0">${eur(v.v)} €</b></div>`).join('');
+    const tw=tip.offsetWidth;
+    tip.style.left=(px+14+tw>W?px-14-tw:px+14)+'px';tip.style.top=(m.t+4)+'px';
+  };
+  const leave=()=>{tip.hidden=true;xh.setAttribute('opacity','0');hd.innerHTML='';};
+  hit.addEventListener('pointermove',move);hit.addEventListener('pointerdown',move);hit.addEventListener('pointerleave',leave);
+}
+function renderTable(){
+  const {E,H}=inputs(); const xm=xMax(); const step=xm>24?2:1;
+  const hs=[]; for(let h=step;h<=xm;h+=step)hs.push(h);
+  if(!hs.some(h=>Math.abs(h-H)<1e-9)&&H>0&&H<=xm){hs.push(H);hs.sort((a,b)=>a-b);}
+  const P=PROVIDERS.map(p=>toParams(state.t[p.id]));
+  $('#table').innerHTML=`<table><thead><tr><th>Ladezeit</th><th>Shell</th><th>Aral</th><th>Differenz</th></tr></thead><tbody>`+
+   hs.map(h=>{const a=calc(E,h,P[0]).total,b=calc(E,h,P[1]).total,d=a-b;
+     return `<tr class="${Math.abs(h-H)<1e-9?'now':''}"><td>${fmtH(h)}</td><td>${eur(a)} €</td><td>${eur(b)} €</td><td>${Math.abs(d)<.005?'±0,00 €':(d>0?'Aral ':'Shell ')+eur(Math.abs(d))+' € günstiger'}</td></tr>`;}).join('')+`</tbody></table>`;
+}
+
+/* ---------- Tarifseiten ---------- */
+function buildTariffPages(){
+  const main=$('main');
+  for(const p of PROVIDERS){
+    const sec=document.createElement('section');
+    sec.className='view';sec.id='view-tarif-'+p.id;sec.hidden=true;
+    sec.innerHTML=`
+    <div class="page-head"><div>
+      <p class="eyebrow">Tarif einstellen</p>
+      <h1><span class="dot ${p.id}" style="width:16px;height:16px"></span>${p.name}</h1>
+      <p class="lead">Preise und Gebührenschwellen von ${p.name}. Änderungen wirken sofort auf den Vergleich.</p>
+    </div>
+    <div class="seg">${PROVIDERS.map(q=>`<a href="#tarif-${q.id}" class="${q.id===p.id?'on':''}"><span class="dot ${q.id}"></span>${q.name}</a>`).join('')}</div></div>
+    <div class="grid2">
+      <form class="card fields" onsubmit="return false" autocomplete="off">
+      ${GROUPS.map(g=>`<fieldset><legend>${g.title}</legend><div class="fl">${g.fields.map(f=>`
+        <label class="field"><span class="lbl">${f.label}</span>
+          <span class="inp"><input inputmode="decimal" data-p="${p.id}" data-k="${f.k}" placeholder="${f.opt||''}" value="${state.t[p.id][f.k]}"><span class="unit">${f.unit}</span></span>
+          <span class="hint">${f.hint}</span></label>`).join('')}</div></fieldset>`).join('')}
+      </form>
+      <aside class="card preview">
+        <h3>Vorschau</h3>
+        <p class="ctx" data-ctx></p>
+        <div class="total"><span class="num" data-total></span><span class="cur">€</span></div>
+        <dl class="rows" data-rows></dl>
+        <button type="button" class="btn" data-reset="${p.id}">Auf Standardwerte zurücksetzen</button>
+      </aside>
+    </div>
+    <details class="card how"><summary>So wird gerechnet</summary><div class="body"><ol>
+      <li><b>Energie</b> = Ladeenergie × Energiepreis</li>
+      <li><b>Minutengebühr</b> = (Ladezeit in Minuten − „ab“-Schwelle) × Minutengebühr, höchstens „Minutengebühr max“. Läuft nur bis zur Überschreitungsschwelle.</li>
+      <li><b>Überschreitung</b> = (Ladezeit in Minuten − Überschreitungsschwelle) × Überschreitungsgebühr, sobald die Schwelle überschritten ist.</li>
+      <li><b>TOTAL</b> = Energie + Minutengebühr + Überschreitung</li></ol>
+      <p style="margin-top:10px">Felder mit Hinweistext (Max, Überschreitung) kannst du leer lassen, wenn der Tarif keine solche Regel kennt.</p></div></details>`;
+    main.appendChild(sec);
+  }
+  main.addEventListener('input',e=>{
+    const el=e.target; if(!el.dataset||!el.dataset.p) return;
+    state.t[el.dataset.p][el.dataset.k]=el.value;
+    const bad=Number.isNaN(num(el.value));
+    el.parentElement.classList.toggle('bad',bad);
+    save(); renderAll();
+  });
+  main.addEventListener('click',e=>{
+    const b=e.target.closest('[data-reset]'); if(!b) return;
+    const id=b.dataset.reset; state.t[id]={...DEFAULTS[id]};
+    document.querySelectorAll(`#view-tarif-${id} input`).forEach(i=>{i.value=state.t[id][i.dataset.k];i.parentElement.classList.remove('bad');});
+    b.textContent='Zurückgesetzt ✓'; setTimeout(()=>b.textContent='Auf Standardwerte zurücksetzen',1600);
+    save(); renderAll();
+  });
+}
+function renderPreviews(){
+  const {E,H}=inputs();
+  for(const x of results()){
+    const s=$('#view-tarif-'+x.id);
+    s.querySelector('[data-ctx]').innerHTML=`Für ${n0(E)} kWh in ${fmtH(H)} · <a href="#vergleich">ändern</a>`;
+    s.querySelector('[data-total]').textContent=eur(x.r.total);
+    s.querySelector('[data-rows]').innerHTML=rowsHTML(x.r,x.pr,E);
+  }
+}
+
+/* ---------- Startseiten-Eingaben ---------- */
+const inE=$('#in-energy'),inH=$('#in-hours'),rgE=$('#rg-energy'),rgH=$('#rg-hours');
+inE.value=state.energy;inH.value=state.hours;rgE.value=num(state.energy)||1;rgH.value=num(state.hours)||.25;
+inE.addEventListener('input',()=>{state.energy=inE.value;rgE.value=num(inE.value)||0;save();renderAll();});
+inH.addEventListener('input',()=>{state.hours=inH.value;rgH.value=num(inH.value)||0;save();renderAll();});
+rgE.addEventListener('input',()=>{state.energy=inE.value=rgE.value;save();renderAll();});
+rgH.addEventListener('input',()=>{state.hours=inH.value=rgH.value.replace('.',',');save();renderAll();});
+
+function renderAll(){renderHome();renderPreviews();}
+
+/* ---------- Navigation ---------- */
+const ROUTES=['vergleich','tarif-shell','tarif-aral'];
+const pop=$('#pop'),btn=$('#nav-tarife');
+function route(){
+  let r=location.hash.slice(1); if(!ROUTES.includes(r)) r='vergleich';
+  document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='view-'+r);
+  $('#nav-home').classList.toggle('on',r==='vergleich');
+  btn.classList.toggle('on',r.startsWith('tarif'));
+  pop.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.dataset.r===r));
+  closeMenu(); window.scrollTo(0,0);
+  if(r==='vergleich') drawChart();
+}
+function closeMenu(){pop.hidden=true;btn.setAttribute('aria-expanded','false');}
+btn.addEventListener('click',e=>{e.stopPropagation();const o=pop.hidden;pop.hidden=!o;btn.setAttribute('aria-expanded',String(o));});
+document.addEventListener('click',e=>{if(!e.target.closest('.menu'))closeMenu();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+window.addEventListener('hashchange',route);
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$('#view-vergleich').hidden)drawChart();},80);});
+
+buildTariffPages();
+renderAll();
+route();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
